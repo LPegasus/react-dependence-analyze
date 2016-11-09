@@ -1,0 +1,27 @@
+{
+  "name": "react-dependence-analyze",
+  "version": "0.1.0",
+  "description": "reactjs project tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha ./dist/test --recursive",
+    "svr": "./node_modules/lite-server/bin/lite-server",
+    "cpl": "tsc -w",
+    "start": "nodemon -w ./dist/src -e js ./dist/src/index.js"
+  },
+  "keywords": [
+    "reactjs"
+  ],
+  "author": "Pegasusknight",
+  "license": "ISC",
+  "dependencies": {
+    "d3": "^4.2.7",
+    "lite-server": "^2.2.2",
+    "typescript": "^2.0.3"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.1.2",
+    "tslint": "^3.15.1"
+  }
+}

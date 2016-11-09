@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "removeComments": true,
+    "sourceMap": true,
+    "noImplicitReturns": true,
+    "noImplicitUseStrict": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "newLine": "LF",
+    "listEmittedFiles": true,
+    "outDir": "./dist",
+    "lib": [
+      "es2015.promise",
+      "es2015.core",
+      "dom",
+      "scripthost",
+      "es2015",
+      "es2015.iterable"
+    ],
+    "target": "es6"
+  },
+  "include": [
+    "src/**/*",
+    "test/**/*"
+  ],
+  "files": [
+    "src/index.ts",
+    "typings/index.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "compileOnSave": true
+}
