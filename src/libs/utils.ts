@@ -42,9 +42,9 @@ export class TaskCompletionSource<T> {
   setError: (err: any) => void;
 };
 
-export const forEachAsync = async function <T>(
-  list: Array<T>,
-  fn: (value?: any, index?: number, array?: Array<T>) => Promise<void>,
+export const forEachAsync = async function (
+  list: any[],
+  fn: (value?: any, index?: number, array?: any[]) => Promise<void>,
   ctx?: any): Promise<void> {
   const tcs: TaskCompletionSource<void> = new TaskCompletionSource<void>();
   const len = list.length;
@@ -55,14 +55,14 @@ export const forEachAsync = async function <T>(
   return tcs.promise;
 };
 
-export const mapAsync = async function <T>(
-  list: T[],
-  fn: (value?: any, index?: number, array?: Array<T>) => Promise<T[]>,
+export const mapAsync = async function <TResult>(
+  list: any[],
+  fn: (value?: any, index?: number, array?: any[]) => Promise<TResult[]>,
   ctx?: any
-): Promise<T[]> {
-  const tcs: TaskCompletionSource<T[]> = new TaskCompletionSource<T[]>();
+): Promise<TResult[]> {
+  const tcs: TaskCompletionSource<TResult[]> = new TaskCompletionSource<TResult[]>();
   const len = list.length;
-  const res: T[] = [];
+  const res: TResult[] = [];
   for (let i = 0; i < len; i++) {
     res[i] = await fn.call(ctx, list[i], i, list);
   }

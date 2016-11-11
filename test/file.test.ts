@@ -67,5 +67,20 @@ describe('file.test', () => {
     expect(whiteListFilteredList.every(p => p.indexOf('typings') > -1)).to.be.ok;
   });
 
-
+  it.only(' - 获取所有文件', async () => {
+    const fileUtil1 = new FileUtils({
+      baseDir: process.cwd(),
+      ext: ['.ts'],
+      whiteList: [/test/i, /src/]
+    });
+    const res1 = await fileUtil1.getAllFiles();
+    expect(res1.every(file => file.ext === '.ts')).to.be.ok;
+    const fileUtil2 = new FileUtils({
+      baseDir: 'dist',
+      ext: ['.js', '.map'],
+      blackList: [/test/i]
+    });
+    const res2 = await fileUtil2.getAllFiles();
+    expect(res2.every(file => ['.js', '.map'].indexOf(file.ext) > -1 && file.path.indexOf('test') === -1)).to.be.ok;
+  });
 });

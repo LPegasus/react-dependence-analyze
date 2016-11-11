@@ -8,7 +8,7 @@ describe('utils.test', () => {
   it(' - forEachAsync', () => {
     const tcs = new TaskCompletionSource();
     const res = [];
-    forEachAsync<string>(['package.json', 'tslint.json', 'tsconfig.json'],
+    forEachAsync(['package.json', 'tslint.json', 'tsconfig.json'],
     async function(filename: string): Promise<void> {
       const ctx: any = this;
       const stats: Stats = await fsAsync.stat(path.resolve(filename));

@@ -1,33 +1,68 @@
 /// <reference path="../../typings/globals/node/index.d.ts" />
 import * as path from 'path';
-import { IFileInfo, IReadAllDirFilesOptions, IGetDirectoryListAllOptions } from '../interface/IFile';
-import { fsAsync, TaskCompletionSource, forEachAsync, iifabsolutePath } from '../libs/utils';
+import { flatten } from 'lodash';
+
+import {
+  IFileInfo,
+  IGetDirectoryListAllOptions,
+  IGetAllFilesOptions
+} from '../interface/IFile';
+
+import {
+  fsAsync,
+  TaskCompletionSource,
+  forEachAsync,
+  mapAsync,
+  iifabsolutePath
+} from '../libs/utils';
+
+const DEAULT_OPTIONS: IGetAllFilesOptions = {
+  ext: ['.jsx', '.js'], // 分析目标文件的后缀
+  baseDir: './',
+  blackList: [],
+  whiteList: []
+};
 
 export class FileUtils {
-  constructor(options: IReadAllDirFilesOptions = {}) {
-    this.options = Object.assign({}, options);
+  constructor(options?: IGetAllFilesOptions) {
+    this.options = Object.assign({}, DEAULT_OPTIONS, options);
     this.fullBaseDir = path.resolve(this.options.baseDir) + path.sep;
   }
-  fullBaseDir: string;
-  options: IReadAllDirFilesOptions = {
-    ext: ['.jsx', '.js'], // 分析目标文件的后缀
-    baseDir: './',
-  };
+  readonly fullBaseDir: string;
+  readonly options: IGetAllFilesOptions;
 
   /**
    * @desc 获取当前路径下的所有 FileInfo
-   * @param  {string} _path 相对文件路径
+   * @param  {string} _path 路径
    * @returns Promise IFileInfo[]
    */
-  async getCurrentFilesFromDir(_path: string): Promise<IFileInfo[]> {
-    const curDir: string = path.resolve(this.fullBaseDir, _path) + path.sep;
+  async getCurrentFilesFromDir(_path: string = ''): Promise<IFileInfo[]> {
+    return await FileUtils.getCurrentFilesFromDir(_path, this.fullBaseDir, this.options);
+  }
+
+  async getAllFiles(): Promise<IFileInfo[]> {
+    return await FileUtils.getAllFiles(this.options);
+  }
+
+  /**
+   * @param  {string} _path 路径
+   * @param  {string} fullBaseDir 基础路径 default: ''
+   * @param  {IReadAllDirFilesOptions} options 配置 default: DEAULT_OPTIONS
+   * @returns Promise<IFileInfo[]>
+   */
+  static async getCurrentFilesFromDir(
+    _path: string,
+    fullBaseDir: string = '',
+    options: IGetAllFilesOptions = DEAULT_OPTIONS
+  ): Promise<IFileInfo[]> {
+    const curDir: string = iifabsolutePath(_path, fullBaseDir) + path.sep;
     const files: string[] = await fsAsync.readdir(curDir);
     const fileList: IFileInfo[] = [];
     files.forEach(filename => {
-      if (this.options.ext.some(ext => filename.endsWith(ext))) {
+      if (options.ext.some(ext => filename.endsWith(ext))) {
         const fullFileName = path.resolve(_path, filename);
         const fileInfo: IFileInfo = FileUtils.getFileInfoFromFullFileName(fullFileName);
-        fileInfo.path = FileUtils.getRelativePathFromAbsolutePath(this.fullBaseDir, fileInfo.path);
+        fileInfo.path = FileUtils.getRelativePathFromAbsolutePath(fullBaseDir, fileInfo.path);
         fileList.push(fileInfo);
       }
     });
@@ -71,7 +106,7 @@ export class FileUtils {
     const files: string[] = await fsAsync.readdir(path.resolve(_path))
       .then(d => d.map(file => path.resolve(_path, file)));
     const res: string[] = [];
-    await forEachAsync(files, async function(file) {
+    await forEachAsync(files, async function (file) {
       if (await FileUtils.isDirectory(file)) {
         res.push(file + path.sep);
       }
@@ -86,7 +121,7 @@ export class FileUtils {
    * @returns Promise<T> where T: string[]
    */
   static async getDirectoryListAll(rootPath: string,
-  opts: IGetDirectoryListAllOptions = {}): Promise<string[]> {
+    opts: IGetDirectoryListAllOptions = {}): Promise<string[]> {
     const {blackList, whiteList} = opts;
     let directoryList: string[] = [];
     const directoryToScan: string[] = [iifabsolutePath(rootPath)];
@@ -97,7 +132,7 @@ export class FileUtils {
       if (swapper.length === 0) continue;
       const filteredPathList = whiteList && whiteList.length ?
         swapper.filter(dirName => whiteList.some(reg => reg.test(dirName))) :
-          blackList && blackList.length
+        blackList && blackList.length
           ? swapper.filter(dirName => !blackList.some(reg => reg.test(dirName))) : swapper;
       directoryList = directoryList.concat(filteredPathList);
       directoryToScan.push(...filteredPathList);
@@ -125,8 +160,26 @@ export class FileUtils {
     return stat.isFile();
   }
 
-  static async getAllFiles(): IFileInfo[] {
+  static async getAllFiles(
+    opts: IGetAllFilesOptions = {
+      baseDir: '',
+      ext: [],
+      blackList: [],
+      whiteList: []
+    }): Promise<IFileInfo[]> {
+    const { baseDir, ext, blackList, whiteList, } = opts;
+    const fullBaseDir = iifabsolutePath(baseDir);
 
+    // 获取所有文件夹
+    const allDirList = await FileUtils.getDirectoryListAll(fullBaseDir, { blackList, whiteList });
+    allDirList.push(fullBaseDir);
+
+    // 获取所有文件
+    const fileInfoList: IFileInfo[] = flatten<IFileInfo>(await mapAsync<IFileInfo>(allDirList, async dir => {
+      return await FileUtils.getCurrentFilesFromDir(dir, fullBaseDir, { baseDir, ext });
+    }));
+
+    return fileInfoList;
   }
 
 }

@@ -4,15 +4,11 @@ export interface IFileInfo {
   ext: string;
 }
 
-export interface IReadAllDirFilesOptions {
-  baseDir?: string;
-  ext?: string[];
-}
-
 export interface IGetAllFilesOptions {
   baseDir: string;
   ext?: string[];
-  filter?: IGetDirectoryListAllOptions;
+  blackList?: RegExp[];
+  whiteList?: RegExp[];
 }
 
 export interface IGetDirectoryListAllOptions {
