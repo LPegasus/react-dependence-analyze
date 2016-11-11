@@ -6,7 +6,7 @@
     "sourceMap": true,
     "noImplicitReturns": true,
     "noImplicitUseStrict": true,
-    "noImplicitThis": true,
+    "noImplicitThis": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,

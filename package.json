@@ -4,10 +4,13 @@
   "description": "reactjs project tool",
   "main": "index.js",
   "scripts": {
-    "test": "mocha ./dist/test --recursive",
+    "test": "mocha ./dist/test --recursive -t 30000",
     "svr": "./node_modules/lite-server/bin/lite-server",
     "cpl": "tsc -w",
-    "start": "nodemon -w ./dist/src -e js ./dist/src/index.js"
+    "start": "nodemon -w ./dist/src -e js ./dist/src/index.js",
+    "lint": "npm run lint:src lint:test",
+    "lint:src": "tslint \"src/**/*.ts\"",
+    "lint:test": "tslint \"test/**/*.ts\""
   },
   "keywords": [
     "reactjs"
@@ -22,6 +25,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^3.1.2",
-    "tslint": "^3.15.1"
+    "tslint": "^3.15.1",
+    "tslint-eslint-rules": "^2.1.0"
   }
 }

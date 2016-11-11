@@ -1,7 +1,7 @@
 /// <reference path="../../typings/globals/node/index.d.ts" />
 import * as path from 'path';
-import { IFileInfo, IReadAllDirFilesOptions } from '../interface/IFile';
-import { fsAsync } from '../libs/utils';
+import { IFileInfo, IReadAllDirFilesOptions, IGetDirectoryListAllOptions } from '../interface/IFile';
+import { fsAsync, TaskCompletionSource, forEachAsync, iifabsolutePath } from '../libs/utils';
 
 export class FileUtils {
   constructor(options: IReadAllDirFilesOptions = {}) {
@@ -12,7 +12,7 @@ export class FileUtils {
   options: IReadAllDirFilesOptions = {
     ext: ['.jsx', '.js'], // 分析目标文件的后缀
     baseDir: './',
-  }
+  };
 
   /**
    * @desc 获取当前路径下的所有 FileInfo
@@ -62,20 +62,71 @@ export class FileUtils {
     return absolutePath.substr(baseDir.length + path.sep.length);
   }
 
-
+  /**
+   * @desc 获取路径下的所有文件夹列表
+   * @param  {string} _path 绝对路径
+   * @returns Promise<string[]> 文件夹的绝对路径列表
+   */
   static async getDirectoryList(_path: string): Promise<string[]> {
-    const files: string[] = await fsAsync.readdir(path.resolve(_path));
+    const files: string[] = await fsAsync.readdir(path.resolve(_path))
+      .then(d => d.map(file => path.resolve(_path, file)));
     const res: string[] = [];
-    for (let i = 0; i++ < files.length;) {
-      if (await FileUtils.isDirectory(files[i])) {
-        res.push(files[i]);
+    await forEachAsync(files, async function(file) {
+      if (await FileUtils.isDirectory(file)) {
+        res.push(file + path.sep);
       }
-    }
+    });
     return res;
   }
 
+  /**
+   * @desc 获取路径下的所有文件夹及子文件夹
+   * @param  {string} rootPath 根路径
+   * @param  {{Array<RegExp>, Array<RegExp>}} 忽略的路径
+   * @returns Promise<T> where T: string[]
+   */
+  static async getDirectoryListAll(rootPath: string,
+  opts: IGetDirectoryListAllOptions = {}): Promise<string[]> {
+    const {blackList, whiteList} = opts;
+    let directoryList: string[] = [];
+    const directoryToScan: string[] = [iifabsolutePath(rootPath)];
+
+    while (directoryToScan.length > 0) {
+      const _path = directoryToScan.pop();
+      const swapper: string[] = await FileUtils.getDirectoryList(_path);
+      if (swapper.length === 0) continue;
+      const filteredPathList = whiteList && whiteList.length ?
+        swapper.filter(dirName => whiteList.some(reg => reg.test(dirName))) :
+          blackList && blackList.length
+          ? swapper.filter(dirName => !blackList.some(reg => reg.test(dirName))) : swapper;
+      directoryList = directoryList.concat(filteredPathList);
+      directoryToScan.push(...filteredPathList);
+    }
+    return directoryList;
+  }
+
+  /**
+   * @desc 是否是文件夹
+   * @param  {string} fullFileName
+   * @returns Promise
+   */
   static async isDirectory(fullFileName: string): Promise<boolean> {
     const stat = await fsAsync.stat(fullFileName);
     return stat.isDirectory();
   }
+
+  /**
+   * @desc 是否是文件
+   * @param  {string} fullFileName
+   * @returns Promise
+   */
+  static async isFile(fullFileName: string): Promise<boolean> {
+    const stat = await fsAsync.stat(fullFileName);
+    return stat.isFile();
+  }
+
+  static async getAllFiles(): IFileInfo[] {
+
+  }
+
 }
