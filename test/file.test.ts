@@ -1,6 +1,8 @@
 /// <reference path="../typings/index.d.ts" />
 import { FileUtils } from '../src/file/readAllDirFiles';
 import { TaskCompletionSource } from '../src/libs/utils';
+import { IFileInfo } from '../src/interface/IFile';
+import FileInfo from '../src/file/FileInfo';
 import { expect } from 'chai';
 import * as path from 'path';
 
@@ -67,7 +69,7 @@ describe('file.test', () => {
     expect(whiteListFilteredList.every(p => p.indexOf('typings') > -1)).to.be.ok;
   });
 
-  it.only(' - 获取所有文件', async () => {
+  it(' - 获取所有文件', async () => {
     const fileUtil1 = new FileUtils({
       baseDir: process.cwd(),
       ext: ['.ts'],
@@ -82,5 +84,21 @@ describe('file.test', () => {
     });
     const res2 = await fileUtil2.getAllFiles();
     expect(res2.every(file => ['.js', '.map'].indexOf(file.ext) > -1 && file.path.indexOf('test') === -1)).to.be.ok;
+  });
+
+  it(' - 获取依赖', async () => {
+    const fileInfo: IFileInfo = new FileInfo({
+      path: path.relative('.', 'test/testData/containers') + path.sep,
+      fileName: 'Application.jsx',
+      ext: '.jsx'
+    });
+    const res = await FileUtils.getDependenceList(fileInfo);
+    expect(res.length).to.be.equal(4);
+
+    const fileUtil = new FileUtils({
+      baseDir: path.resolve(__dirname, './testData'),
+      ext: ['js', 'jsx']
+    });
+
   });
 });

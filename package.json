@@ -20,7 +20,7 @@
   "dependencies": {
     "d3": "^4.2.7",
     "lite-server": "^2.2.2",
-    "typescript": "^2.0.3"
+    "typescript": "^2.0.3z"
   },
   "devDependencies": {
     "chai": "^3.5.0",

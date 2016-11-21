@@ -1,4 +1,3 @@
-/// <reference path="../../typings/globals/node/index.d.ts" />
 import * as path from 'path';
 import { flatten } from 'lodash';
 
@@ -8,6 +7,8 @@ import {
   IGetAllFilesOptions
 } from '../interface/IFile';
 
+import FileInfo from './FileInfo';
+
 import {
   fsAsync,
   TaskCompletionSource,
@@ -16,20 +17,35 @@ import {
   iifabsolutePath
 } from '../libs/utils';
 
+const DEPENDENCE_IGNORE_LIST: string[] = [
+  'react', 'react-dom', 'moment', 'antd', 'react-router'
+];
+
 const DEAULT_OPTIONS: IGetAllFilesOptions = {
   ext: ['.jsx', '.js'], // 分析目标文件的后缀
   baseDir: './',
   blackList: [],
-  whiteList: []
+  whiteList: [],
+  ignoreModule: DEPENDENCE_IGNORE_LIST
 };
 
 export class FileUtils {
   constructor(options?: IGetAllFilesOptions) {
     this.options = Object.assign({}, DEAULT_OPTIONS, options);
     this.fullBaseDir = path.resolve(this.options.baseDir) + path.sep;
+    this._cache_ = new Map<string, boolean>();
+    this._allFiles = null;
   }
   readonly fullBaseDir: string;
   readonly options: IGetAllFilesOptions;
+  private _allFiles?: IFileInfo[];
+
+  // 标记是否存在
+  private _cache_: Map<string, boolean>;
+
+  get allFiles () {
+    return this._allFiles;
+  }
 
   /**
    * @desc 获取当前路径下的所有 FileInfo
@@ -40,8 +56,37 @@ export class FileUtils {
     return await FileUtils.getCurrentFilesFromDir(_path, this.fullBaseDir, this.options);
   }
 
+  /**
+   * @desc 获取所有文件
+   * @returns Promise IFileInfo[]
+   */
   async getAllFiles(): Promise<IFileInfo[]> {
-    return await FileUtils.getAllFiles(this.options);
+    if (this._allFiles !== null) {
+      return Promise.resolve(this._allFiles);
+    }
+    const files = await FileUtils.getAllFiles(this.options);
+    files.forEach(f => this._cache_.set(f.toString(), true));
+    return files;
+  }
+
+  async analyzeDependence(): Promise<void> {
+    const exts = this.options.ext;
+    forEachAsync(this._allFiles, async (fileInfo) => {
+      FileUtils.getDependenceList(
+        fileInfo,
+        this.options.ignoreModule,
+        (f) => {
+          if (exts.some(ext => {
+            f.ext = ext;
+            f.fileName = f.fileName + ext;
+            return this._cache_[f.toString()];
+          })) {
+            return fileInfo;
+          }
+          return null;
+        }
+      );
+    });
   }
 
   /**
@@ -76,13 +121,14 @@ export class FileUtils {
    */
   static getFileInfoFromFullFileName(fullFileName: string): IFileInfo {
     const lastIndexOfSeparator = fullFileName.lastIndexOf(path.sep);
-    const separatorLength = path.sep.length;
-    const fileName = fullFileName.substr(lastIndexOfSeparator + separatorLength);
-    const _path = fullFileName.substr(0, lastIndexOfSeparator + separatorLength);
-    const ext = fileName.substr(fileName.lastIndexOf('.'));
-    return {
-      ext, path: _path, fileName
-    };
+    const separatorLength: number = path.sep.length;
+    const fileName: string = fullFileName.substr(lastIndexOfSeparator + separatorLength);
+    const _path: string = fullFileName.substr(0, lastIndexOfSeparator + separatorLength);
+    const lidx: number = fileName.lastIndexOf('.');
+    const ext = lidx > 0 ? fileName.substr(lidx) : null;
+    return new FileInfo({
+      ext, path: _path, fileName: fileName
+    });
   }
 
   /**
@@ -160,6 +206,17 @@ export class FileUtils {
     return stat.isFile();
   }
 
+  /**
+   * @desc 获取所有文件
+   * @param  {IGetAllFilesOptions} opts 参数
+   *    default: {
+   *      baseDir: string       根路径
+   *      ext: string[]         后缀
+   *      blackList: RegExp[]   黑名单
+   *      whiteList: RegExp[]   白名单
+   *    }
+   * @returns Promise
+   */
   static async getAllFiles(
     opts: IGetAllFilesOptions = {
       baseDir: '',
@@ -182,4 +239,47 @@ export class FileUtils {
     return fileInfoList;
   }
 
+  /**
+   * @desc 获取文件的依赖 文件的依赖引入必须全部现在最前面
+   * @param  {IFileInfo} file
+   * @param  {string[]=DEPENDENCE_IGNORE_LIST} ignoreList
+   * @param  {function} ifRecord 判断是否记录的钩子(比如，文件是否存在)
+   * @returns Promise
+   */
+  static async getDependenceList(
+    file: IFileInfo,
+    ignoreList: string[] = DEPENDENCE_IGNORE_LIST,
+    ifRecord?: (fileInfo: IFileInfo) => IFileInfo): Promise<IFileInfo[]> {
+    const importRegExp = /[\b\n]*import\b.+from\s+((['"]).+?\2)/; // 捕获依赖用正则
+    const filePath = path.resolve(file.path, file.fileName);
+    const fileMeta: string = await fsAsync.readFile(filePath, 'utf-8');
+    const lines = fileMeta.split(/\n|\r\n/)
+      .map(l => l.trim())
+      .filter(l => !!l);  // 分行并过滤空行
+    const tcs: TaskCompletionSource<IFileInfo[]> =  new TaskCompletionSource<IFileInfo[]>();
+    const res: IFileInfo[] = [];
+
+    let curLine: string = null;
+    while (curLine = lines.shift()) {
+      if (curLine.startsWith('import')) {
+        const mc = curLine.match(importRegExp);
+        let _file_: string;
+        if (mc && mc.length
+          && (_file_ = mc[1].substr(1, mc[1].length - 2))
+          && ignoreList.indexOf(_file_)
+          ) {
+          let depInfo: IFileInfo = FileUtils.getFileInfoFromFullFileName(path.resolve(file.path, _file_));
+          if (ifRecord) {  // 钩子检测未通过则不记录为依赖
+            depInfo = ifRecord(depInfo);
+          }
+          if (depInfo) {
+            res.push(depInfo);
+          }
+        }
+      } else {
+        tcs.setResult(res);
+      }
+    };
+    return tcs.promise;
+  }
 }

@@ -1,6 +1,7 @@
 /* tslint:disable:max-line-length */
 import * as fs from 'fs';
 import * as path from 'path';
+import * as buffer from 'buffer';
 
 /**
  * @desc callback异步方法转Promise
@@ -26,7 +27,7 @@ export function asyncWrapper<T extends Function, U>(fn: T): (...args: any[]) => 
 export const fsAsync = {
   readdir: asyncWrapper<(path: string | Buffer, callback: (err: NodeJS.ErrnoException | null, files: string[]) => void) => void, string[]>(fs.readdir),
   stat: asyncWrapper<(path: string | Buffer, callback: (err: NodeJS.ErrnoException | null, stats: fs.Stats) => void) => void, fs.Stats>(fs.stat),
-  readFile: asyncWrapper<(file: string | Buffer | number, callback: (err: NodeJS.ErrnoException | null, data: Buffer) => void) => void, Buffer>(fs.readFile),
+  readFile: asyncWrapper<(file: string | Buffer | number, options: buffer.Encoding | (fs.ReadFileOptions & { encoding: buffer.Encoding }), callback: (err: NodeJS.ErrnoException | null, data: string) => void) => void, string>(fs.readFile),
   exists: asyncWrapper<(path: string | Buffer, callback: (exists: boolean) => void) => void, boolean>(fs.exists),
 };
 
