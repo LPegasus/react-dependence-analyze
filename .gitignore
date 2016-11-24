@@ -1,6 +1,6 @@
 node_modules/*
 *.bak
-.vscode
+.vscode/settings.json
 dist/**/*
 *.js
 *.log
