@@ -1,7 +1,7 @@
 import React from "react";
 import { RouteHandler } from "react-router";
-import MainMenu from "components/MainMenu";
-import TEMPLATE from 'components/TEMPLATE.jsx'
+import MainMenu from "../components/MainMenu";
+import TEMPLATE from '../components/TEMPLATE';
 
 import styles from "./Application.css";
 

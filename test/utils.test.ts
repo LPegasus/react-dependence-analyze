@@ -1,5 +1,11 @@
 /// <reference path="../typings/index.d.ts" />
-import { forEachAsync, fsAsync, TaskCompletionSource, iifabsolutePath } from '../src/libs/utils';
+import {
+  forEachAsync,
+  fsAsync,
+  TaskCompletionSource,
+  iifabsolutePath,
+  hasValidExtension
+} from '../src/libs/utils';
 import { expect } from 'chai';
 import * as path from 'path';
 import { Stats } from 'fs';
@@ -34,5 +40,13 @@ describe('utils.test', () => {
     expect(iifabsolutePath(relativePath1)).to.be.equal(absolutePath1);
     expect(iifabsolutePath(relativePath1, absolutePath2)).to.be.equal(absolutePath1);
     expect(iifabsolutePath(relativePath1, relativePath2)).to.be.equal(absolutePath1);
+  });
+
+  it.only(' - hasValidExtension', () => {
+    expect(hasValidExtension('file1')).to.be.equal(null);
+    expect(hasValidExtension('file1.j1')).to.be.equal('.j1');
+    expect(hasValidExtension('file1.coffee')).to.be.equal(null);
+    expect(hasValidExtension('file1.coffee', ['coffee'])).to.be.equal('.coffee');
+    expect(hasValidExtension('file1.coffee', ['.coffee'])).to.be.equal('.coffee');
   });
 });

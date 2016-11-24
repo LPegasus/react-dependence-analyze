@@ -14,7 +14,8 @@ import {
   TaskCompletionSource,
   forEachAsync,
   mapAsync,
-  iifabsolutePath
+  iifabsolutePath,
+  hasValidExtension
 } from '../libs/utils';
 
 const DEPENDENCE_IGNORE_LIST: string[] = [
@@ -31,6 +32,10 @@ const DEAULT_OPTIONS: IGetAllFilesOptions = {
 
 export class FileUtils {
   constructor(options?: IGetAllFilesOptions) {
+    const { ext = [] } = options;
+    if (ext.length) {
+      options.ext = ext.map(d => /^\..+/i.test(d) ? d : `.${d}`);
+    }
     this.options = Object.assign({}, DEAULT_OPTIONS, options);
     this.fullBaseDir = path.resolve(this.options.baseDir) + path.sep;
     this._cache_ = new Map<string, boolean>();
@@ -65,23 +70,36 @@ export class FileUtils {
       return Promise.resolve(this._allFiles);
     }
     const files = await FileUtils.getAllFiles(this.options);
+    this._allFiles = files;
     files.forEach(f => this._cache_.set(f.toString(), true));
     return files;
   }
 
   async analyzeDependence(): Promise<void> {
     const exts = this.options.ext;
-    forEachAsync(this._allFiles, async (fileInfo) => {
-      FileUtils.getDependenceList(
+    await forEachAsync(this._allFiles, async (fileInfo: IFileInfo) => {
+      fileInfo.dependenceList = await FileUtils.getDependenceList(
         fileInfo,
         this.options.ignoreModule,
         (f) => {
-          if (exts.some(ext => {
+          const _f = Object.assign({}, f);
+          const validExt = hasValidExtension(_f.fileName, exts);
+          if (validExt && exts.indexOf(validExt) >= 0) {
+            if (this._cache_.get(f.toString())) {
+              return f;
+            }
+          } else if (exts.some(ext => {
             f.ext = ext;
             f.fileName = f.fileName + ext;
-            return this._cache_[f.toString()];
+            if (this._cache_.get(f.toString())) {
+              return true;
+            } else {
+              f.ext = _f.ext;
+              f.fileName = _f.fileName;
+              return false;
+            }
           })) {
-            return fileInfo;
+            return f;
           }
           return null;
         }
@@ -107,7 +125,7 @@ export class FileUtils {
       if (options.ext.some(ext => filename.endsWith(ext))) {
         const fullFileName = path.resolve(_path, filename);
         const fileInfo: IFileInfo = FileUtils.getFileInfoFromFullFileName(fullFileName);
-        fileInfo.path = FileUtils.getRelativePathFromAbsolutePath(fullBaseDir, fileInfo.path);
+        // fileInfo.path = FileUtils.getRelativePathFromAbsolutePath(fullBaseDir, fileInfo.path);
         fileList.push(fileInfo);
       }
     });
@@ -266,7 +284,7 @@ export class FileUtils {
         let _file_: string;
         if (mc && mc.length
           && (_file_ = mc[1].substr(1, mc[1].length - 2))
-          && ignoreList.indexOf(_file_)
+          && ignoreList.indexOf(_file_) === -1
           ) {
           let depInfo: IFileInfo = FileUtils.getFileInfoFromFullFileName(path.resolve(file.path, _file_));
           if (ifRecord) {  // 钩子检测未通过则不记录为依赖
@@ -278,6 +296,7 @@ export class FileUtils {
         }
       } else {
         tcs.setResult(res);
+        break;
       }
     };
     return tcs.promise;

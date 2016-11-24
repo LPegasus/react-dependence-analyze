@@ -86,19 +86,38 @@ describe('file.test', () => {
     expect(res2.every(file => ['.js', '.map'].indexOf(file.ext) > -1 && file.path.indexOf('test') === -1)).to.be.ok;
   });
 
-  it(' - 获取依赖', async () => {
+  it.only(' - 获取依赖', async () => {
     const fileInfo: IFileInfo = new FileInfo({
       path: path.relative('.', 'test/testData/containers') + path.sep,
       fileName: 'Application.jsx',
       ext: '.jsx'
     });
     const res = await FileUtils.getDependenceList(fileInfo);
-    expect(res.length).to.be.equal(4);
+    expect(res.length).to.be.equal(3);
 
     const fileUtil = new FileUtils({
-      baseDir: path.resolve(__dirname, './testData'),
-      ext: ['js', 'jsx']
+      baseDir: path.resolve('./test', './testData'),
+      ext: ['.js', '.jsx']
     });
 
+    await fileUtil.getAllFiles();
+    await fileUtil.analyzeDependence();
+    const fileWithDepInfo = fileUtil.allFiles.filter(file => file.dependenceList.length > 0)[0];
+
+    expect(fileWithDepInfo.dependenceList.length).to.be.equal(2);
+    expect(!!fileWithDepInfo.dependenceList.find(file => file.fileName === 'MainMenu.jsx')).to.be.ok;
+
+    // 增加文件类型，文件类型兼容 带点和不带点
+    const fileUtil2 = new FileUtils({
+      baseDir: path.resolve('./test', './testData'),
+      ext: ['.js', '.jsx', 'css']
+    });
+
+    await fileUtil2.getAllFiles();
+    await fileUtil2.analyzeDependence();
+    const fileWithDepInfo2 = fileUtil2.allFiles.filter(file => file.dependenceList.length > 0)[0];
+
+    expect(fileWithDepInfo2.dependenceList.length).to.be.equal(3);
+    expect(!!fileWithDepInfo2.dependenceList.find(file => file.fileName === 'Application.css')).to.be.ok;
   });
 });

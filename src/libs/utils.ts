@@ -86,3 +86,23 @@ export function iifabsolutePath(addr: string, base?: string) {
     return path.resolve(process.cwd(), addr);
   }
 }
+
+/**
+ * @desc 判断是否合法的后缀文件 默认后缀必须是2个字符到4个字符
+ * @param  {string} filename    文件名
+ * @param  {string[]} validExts 自定义允许的后缀
+ * @returns string
+ */
+export function hasValidExtension(filename: string, validExts: string[] = []): string {
+  if (!filename || filename.charAt(0) === '.') return null;
+  const tokens = filename.split('.');
+  if (tokens.length === 0) return null;
+  const lastToken = tokens.pop();
+  let exts = [];
+  if (validExts.length) {
+    exts = validExts.map(ext => ext.charAt(0) === '.' ? ext.substr(1) : ext);
+  }
+  return (lastToken.length >= 2 && lastToken.length <= 4
+    || validExts.length && exts.some(ext => ext === lastToken))
+    ? `.${lastToken}` : null;
+}
