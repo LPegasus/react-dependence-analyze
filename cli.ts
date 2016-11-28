@@ -1,6 +1,7 @@
-import { FileUtils } from './file/FileUtils';
-import { IGetAllFilesOptions } from './interface/IFile';
+import { FileUtils } from './src/file/FileUtils';
+import { IGetAllFilesOptions, IFileInfo } from './src/interface/IFile';
 import * as path from 'path';
+import * as chalk from 'chalk';
 
 const args: string[] = process.argv.slice(2);
 
@@ -17,7 +18,7 @@ if (ti >= 0) {
   target = args[ti + 1];
   target = path.resolve(process.cwd(), target);
 } else {
-  return console.error('no target file was defined');
+  throw new Error(chalk.red('no target file was defined'));
 }
 
 const options: IGetAllFilesOptions = {
@@ -38,7 +39,7 @@ Object.keys(indexes).forEach(i => {
             return new RegExp(mc[1], mc[2]);
           });
         } catch (e) {
-          throw new Error(`invalid param of ${field}`);
+          throw new Error(chalk.red(`invalid param of ${field}`));
         }
         break;
       case 'ignoreModule':
@@ -55,5 +56,20 @@ const fileUtil: FileUtils = new FileUtils(options);
 fileUtil.getAllFiles()
   .then(async () => {
     await fileUtil.analyzeDependence();
-    console.log(fileUtil.allFiles.filter(f => f.dependenceList.some(dep => dep.equals(target))));
+    const res: string[] = getDependanceTrace(fileUtil.allFiles, target);
+    console.log(chalk.blue('dependence trace:'));
+    res.forEach(d => {
+      console.log(chalk.green(d));
+    });
   });
+
+function getDependanceTrace(allFiles: IFileInfo[], tar: IFileInfo | string = null, res: string[] = []): string[] {
+  const result: string[] = [...res];
+  const tmp: string[] = allFiles.filter(d => d.dependenceList.some(f => f.equals(tar)))
+    .map(d => d.toString());
+  tmp.forEach(d => {
+    getDependanceTrace(allFiles, d, [...res]).forEach(_d => result.push(_d));
+    result.push(d);
+  });
+  return result;
+}

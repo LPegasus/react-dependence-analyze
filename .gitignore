@@ -1,6 +1,6 @@
 node_modules/*
 *.bak
 .vscode/settings.json
-dist/**/*
 *.js
 *.log
+*.map

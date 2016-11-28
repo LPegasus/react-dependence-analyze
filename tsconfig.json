@@ -25,7 +25,9 @@
   },
   "include": [
     "src/**/*",
-    "test/**/*"
+    "test/**/*",
+    "index.ts",
+    "cli.ts"
   ],
   "files": [
     "src/index.ts",

@@ -2,10 +2,9 @@
   "name": "react-dependence-analyze",
   "version": "0.1.0",
   "description": "reactjs project tool",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "mocha ./dist/test --recursive -t 30000",
-    "svr": "./node_modules/lite-server/bin/lite-server",
     "cpl": "tsc -w",
     "start": "nodemon -w ./dist/src -e js ./dist/src/index.js",
     "lint": "npm run lint:src lint:test",
@@ -16,10 +15,14 @@
     "reactjs"
   ],
   "author": "Pegasusknight",
+  "maintainers": [
+    {
+      "name": "Pegasusknight",
+      "email": "pegusas1@hotmail.com"
+    }
+  ],
   "license": "ISC",
   "dependencies": {
-    "d3": "^4.2.7",
-    "lite-server": "^2.2.2",
     "typescript": "^2.0.3z"
   },
   "devDependencies": {

@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "chai": "registry:npm/chai#3.5.0+20160723033700",
+    "chalk": "registry:npm/chalk#1.1.1+20160812215109",
     "d3": "registry:npm/d3#3.0.0+20160723033700",
     "lodash": "registry:npm/lodash#4.0.0+20161015015725"
   },
