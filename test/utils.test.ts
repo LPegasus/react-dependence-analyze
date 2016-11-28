@@ -42,7 +42,7 @@ describe('utils.test', () => {
     expect(iifabsolutePath(relativePath1, relativePath2)).to.be.equal(absolutePath1);
   });
 
-  it.only(' - hasValidExtension', () => {
+  it(' - hasValidExtension', () => {
     expect(hasValidExtension('file1')).to.be.equal(null);
     expect(hasValidExtension('file1.j1')).to.be.equal('.j1');
     expect(hasValidExtension('file1.coffee')).to.be.equal(null);

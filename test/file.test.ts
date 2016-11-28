@@ -86,14 +86,14 @@ describe('file.test', () => {
     expect(res2.every(file => ['.js', '.map'].indexOf(file.ext) > -1 && file.path.indexOf('test') === -1)).to.be.ok;
   });
 
-  it.only(' - 获取依赖', async () => {
+  it(' - 获取依赖', async () => {
     const fileInfo: IFileInfo = new FileInfo({
       path: path.relative('.', 'test/testData/containers') + path.sep,
       fileName: 'Application.jsx',
       ext: '.jsx'
     });
     const res = await FileUtils.getDependenceList(fileInfo);
-    expect(res.length).to.be.equal(3);
+    expect(res.length).to.be.equal(4);
 
     const fileUtil = new FileUtils({
       baseDir: path.resolve('./test', './testData'),

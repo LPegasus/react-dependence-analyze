@@ -259,7 +259,7 @@ export class FileUtils {
 
   /**
    * @desc 获取文件的依赖 文件的依赖引入必须全部现在最前面
-   * @param  {IFileInfo} file
+   * @param  {IFileInfo} file  读取的文件
    * @param  {string[]=DEPENDENCE_IGNORE_LIST} ignoreList
    * @param  {function} ifRecord 判断是否记录的钩子(比如，文件是否存在)
    * @returns Promise
@@ -268,25 +268,18 @@ export class FileUtils {
     file: IFileInfo,
     ignoreList: string[] = DEPENDENCE_IGNORE_LIST,
     ifRecord?: (fileInfo: IFileInfo) => IFileInfo): Promise<IFileInfo[]> {
-    const importRegExp = /[\b\n]*import\b.+from\s+((['"]).+?\2)/; // 捕获依赖用正则
     const filePath = path.resolve(file.path, file.fileName);
     const fileMeta: string = await fsAsync.readFile(filePath, 'utf-8');
-    const lines = fileMeta.split(/\n|\r\n/)
-      .map(l => l.trim())
-      .filter(l => !!l);  // 分行并过滤空行
+
     const tcs: TaskCompletionSource<IFileInfo[]> =  new TaskCompletionSource<IFileInfo[]>();
     const res: IFileInfo[] = [];
+    const mc = fileMeta.replace(/\n/g, ' ').replace(/>.+/, '').replace(/\(.+/, '').match(/import.+?from\s(["']).+?\1/g);
 
-    let curLine: string = null;
-    while (curLine = lines.shift()) {
-      if (curLine.startsWith('import')) {
-        const mc = curLine.match(importRegExp);
-        let _file_: string;
-        if (mc && mc.length
-          && (_file_ = mc[1].substr(1, mc[1].length - 2))
-          && ignoreList.indexOf(_file_) === -1
-          ) {
-          let depInfo: IFileInfo = FileUtils.getFileInfoFromFullFileName(path.resolve(file.path, _file_));
+    if (mc && mc.length > 0) {
+      mc.forEach(m => {
+        const v: string[] | null = m.match(/(["'])(.+)\1/);
+        if (v && v.length === 3 && ignoreList.indexOf(v[2]) === -1) {
+          let depInfo: IFileInfo = FileUtils.getFileInfoFromFullFileName(path.resolve(file.path, v[2]));
           if (ifRecord) {  // 钩子检测未通过则不记录为依赖
             depInfo = ifRecord(depInfo);
           }
@@ -294,11 +287,9 @@ export class FileUtils {
             res.push(depInfo);
           }
         }
-      } else {
-        tcs.setResult(res);
-        break;
-      }
-    };
+      });
+    }
+    tcs.setResult(res);
     return tcs.promise;
   }
 }
