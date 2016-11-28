@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+'use strict';
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -6,10 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const FileUtils_1 = require('./src/file/FileUtils');
+const FileUtils_1 = require('../dist/index.js').FileUtils;
 const path = require('path');
 const chalk = require('chalk');
 const args = process.argv.slice(2);
+
 const indexes = {
     ext: args.indexOf('-e') + 1,
     blackList: args.indexOf('-b') + 1,
@@ -74,4 +77,3 @@ function getDependanceTrace(allFiles, tar = null, res) {
     });
     return result;
 }
-//# sourceMappingURL=cli.js.map

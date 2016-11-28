@@ -58,13 +58,13 @@ fileUtil.getAllFiles()
     await fileUtil.analyzeDependence();
     const res: Set<string> = getDependanceTrace(fileUtil.allFiles, target);
     console.log(chalk.blue('dependence trace:'));
-    res.values().forEach(d => {
+    res.forEach(d => {
       console.log(chalk.green(d));
     });
-  });
+  }).catch(e => console.log(chalk.red(e)));
 
 function getDependanceTrace(allFiles: IFileInfo[], tar: IFileInfo | string = null, res?: Set<string>): Set<string> {
-  const result: Set<string> = new Set(res.values());
+  const result: Set<string> = new Set(res || []);
   const tmp: string[] = allFiles.filter(d => d.dependenceList.some(f => f.equals(tar)))
     .map(d => d.toString());
   tmp.forEach(d => {

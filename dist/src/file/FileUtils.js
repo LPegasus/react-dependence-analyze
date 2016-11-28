@@ -11,7 +11,7 @@ const utils_1 = require('../libs/utils');
 const FileInfo_1 = require('./FileInfo');
 const utils_2 = require('../libs/utils');
 const DEPENDENCE_IGNORE_LIST = [
-    'react', 'react-dom', 'moment', 'antd', 'react-router'
+    'react', 'react-dom', 'moment', 'antd', 'react-router', 'lodash', 'classnames', 'babel-polyfill'
 ];
 const DEAULT_OPTIONS = {
     ext: ['.jsx', '.js'],

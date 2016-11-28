@@ -19,7 +19,7 @@ import {
 } from '../libs/utils';
 
 const DEPENDENCE_IGNORE_LIST: string[] = [
-  'react', 'react-dom', 'moment', 'antd', 'react-router'
+  'react', 'react-dom', 'moment', 'antd', 'react-router', 'lodash', 'classnames', 'babel-polyfill'
 ];
 
 const DEAULT_OPTIONS: IGetAllFilesOptions = {
