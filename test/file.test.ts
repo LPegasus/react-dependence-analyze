@@ -1,5 +1,5 @@
 /// <reference path="../typings/index.d.ts" />
-import { FileUtils } from '../src/file/readAllDirFiles';
+import { FileUtils } from '../src/file/FileUtils';
 import { TaskCompletionSource } from '../src/libs/utils';
 import { IFileInfo } from '../src/interface/IFile';
 import FileInfo from '../src/file/FileInfo';

@@ -25,7 +25,7 @@ const DEPENDENCE_IGNORE_LIST: string[] = [
 const DEAULT_OPTIONS: IGetAllFilesOptions = {
   ext: ['.jsx', '.js'], // 分析目标文件的后缀
   baseDir: './',
-  blackList: [],
+  blackList: [/node_modules/i, /typings/i],
   whiteList: [],
   ignoreModule: DEPENDENCE_IGNORE_LIST
 };
@@ -48,7 +48,7 @@ export class FileUtils {
   // 标记是否存在
   private _cache_: Map<string, boolean>;
 
-  get allFiles () {
+  get allFiles (): IFileInfo[] {
     return this._allFiles;
   }
 
