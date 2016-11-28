@@ -1,6 +1,5 @@
 node_modules/*
 *.bak
 .vscode/settings.json
-*.js
 *.log
 *.map

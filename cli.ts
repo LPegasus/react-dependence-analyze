@@ -56,20 +56,20 @@ const fileUtil: FileUtils = new FileUtils(options);
 fileUtil.getAllFiles()
   .then(async () => {
     await fileUtil.analyzeDependence();
-    const res: string[] = getDependanceTrace(fileUtil.allFiles, target);
+    const res: Set<string> = getDependanceTrace(fileUtil.allFiles, target);
     console.log(chalk.blue('dependence trace:'));
-    res.forEach(d => {
+    res.values().forEach(d => {
       console.log(chalk.green(d));
     });
   });
 
-function getDependanceTrace(allFiles: IFileInfo[], tar: IFileInfo | string = null, res: string[] = []): string[] {
-  const result: string[] = [...res];
+function getDependanceTrace(allFiles: IFileInfo[], tar: IFileInfo | string = null, res?: Set<string>): Set<string> {
+  const result: Set<string> = new Set(res.values());
   const tmp: string[] = allFiles.filter(d => d.dependenceList.some(f => f.equals(tar)))
     .map(d => d.toString());
   tmp.forEach(d => {
-    getDependanceTrace(allFiles, d, [...res]).forEach(_d => result.push(_d));
-    result.push(d);
+    getDependanceTrace(allFiles, d, result).forEach(_d => result.add(_d));
+    result.add(d);
   });
   return result;
 }
