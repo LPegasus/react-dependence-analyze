@@ -48,5 +48,13 @@ describe('utils.test', () => {
         chai_1.expect(utils_1.hasValidExtension('file1.coffee', ['coffee'])).to.be.equal('.coffee');
         chai_1.expect(utils_1.hasValidExtension('file1.coffee', ['.coffee'])).to.be.equal('.coffee');
     });
+    it(' - flatten', () => {
+        const res = utils_1.flatten([[[1, 2]], 3]);
+        chai_1.expect(res[0] === 1 && res[1] === 2 && res[2] === 3).to.be.ok;
+    });
+    it(' - uniq', () => {
+        const res = utils_1.uniq([1, 1, 1, 2, 3, 3, 2, 2, 4, 5, 5, 4]);
+        chai_1.expect(res.join(',')).to.be.equal('1,2,3,4,5');
+    });
 });
 //# sourceMappingURL=utils.test.js.map

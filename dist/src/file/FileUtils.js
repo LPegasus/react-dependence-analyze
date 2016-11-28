@@ -7,9 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const path = require('path');
-const lodash_1 = require('lodash');
-const FileInfo_1 = require('./FileInfo');
 const utils_1 = require('../libs/utils');
+const FileInfo_1 = require('./FileInfo');
+const utils_2 = require('../libs/utils');
 const DEPENDENCE_IGNORE_LIST = [
     'react', 'react-dom', 'moment', 'antd', 'react-router'
 ];
@@ -53,10 +53,10 @@ class FileUtils {
     analyzeDependence() {
         return __awaiter(this, void 0, void 0, function* () {
             const exts = this.options.ext;
-            yield utils_1.forEachAsync(this._allFiles, (fileInfo) => __awaiter(this, void 0, void 0, function* () {
+            yield utils_2.forEachAsync(this._allFiles, (fileInfo) => __awaiter(this, void 0, void 0, function* () {
                 fileInfo.dependenceList = yield FileUtils.getDependenceList(fileInfo, this.options.ignoreModule, (f) => {
                     const _f = Object.assign({}, f);
-                    const validExt = utils_1.hasValidExtension(_f.fileName, exts);
+                    const validExt = utils_2.hasValidExtension(_f.fileName, exts);
                     if (validExt && exts.indexOf(validExt) >= 0) {
                         if (this._cache_.get(f.toString())) {
                             return f;
@@ -83,8 +83,8 @@ class FileUtils {
     }
     static getCurrentFilesFromDir(_path, fullBaseDir = '', options = DEAULT_OPTIONS) {
         return __awaiter(this, void 0, void 0, function* () {
-            const curDir = utils_1.iifabsolutePath(_path, fullBaseDir) + path.sep;
-            const files = yield utils_1.fsAsync.readdir(curDir);
+            const curDir = utils_2.iifabsolutePath(_path, fullBaseDir) + path.sep;
+            const files = yield utils_2.fsAsync.readdir(curDir);
             const fileList = [];
             files.forEach(filename => {
                 if (options.ext.some(ext => filename.endsWith(ext))) {
@@ -115,10 +115,10 @@ class FileUtils {
     }
     static getDirectoryList(_path) {
         return __awaiter(this, void 0, void 0, function* () {
-            const files = yield utils_1.fsAsync.readdir(path.resolve(_path))
+            const files = yield utils_2.fsAsync.readdir(path.resolve(_path))
                 .then(d => d.map(file => path.resolve(_path, file)));
             const res = [];
-            yield utils_1.forEachAsync(files, function (file) {
+            yield utils_2.forEachAsync(files, function (file) {
                 return __awaiter(this, void 0, void 0, function* () {
                     if (yield FileUtils.isDirectory(file)) {
                         res.push(file + path.sep);
@@ -132,7 +132,7 @@ class FileUtils {
         return __awaiter(this, void 0, void 0, function* () {
             const { blackList, whiteList } = opts;
             let directoryList = [];
-            const directoryToScan = [utils_1.iifabsolutePath(rootPath)];
+            const directoryToScan = [utils_2.iifabsolutePath(rootPath)];
             while (directoryToScan.length > 0) {
                 const _path = directoryToScan.pop();
                 const swapper = yield FileUtils.getDirectoryList(_path);
@@ -150,13 +150,13 @@ class FileUtils {
     }
     static isDirectory(fullFileName) {
         return __awaiter(this, void 0, void 0, function* () {
-            const stat = yield utils_1.fsAsync.stat(fullFileName);
+            const stat = yield utils_2.fsAsync.stat(fullFileName);
             return stat.isDirectory();
         });
     }
     static isFile(fullFileName) {
         return __awaiter(this, void 0, void 0, function* () {
-            const stat = yield utils_1.fsAsync.stat(fullFileName);
+            const stat = yield utils_2.fsAsync.stat(fullFileName);
             return stat.isFile();
         });
     }
@@ -168,10 +168,10 @@ class FileUtils {
         }) {
         return __awaiter(this, void 0, void 0, function* () {
             const { baseDir, ext, blackList, whiteList, } = opts;
-            const fullBaseDir = utils_1.iifabsolutePath(baseDir);
+            const fullBaseDir = utils_2.iifabsolutePath(baseDir);
             const allDirList = yield FileUtils.getDirectoryListAll(fullBaseDir, { blackList, whiteList });
             allDirList.push(fullBaseDir);
-            const fileInfoList = lodash_1.flatten(yield utils_1.mapAsync(allDirList, (dir) => __awaiter(this, void 0, void 0, function* () {
+            const fileInfoList = utils_1.flatten(yield utils_2.mapAsync(allDirList, (dir) => __awaiter(this, void 0, void 0, function* () {
                 return yield FileUtils.getCurrentFilesFromDir(dir, fullBaseDir, { baseDir, ext });
             })));
             return fileInfoList;
@@ -180,8 +180,8 @@ class FileUtils {
     static getDependenceList(file, ignoreList = DEPENDENCE_IGNORE_LIST, ifRecord) {
         return __awaiter(this, void 0, void 0, function* () {
             const filePath = path.resolve(file.path, file.fileName);
-            const fileMeta = yield utils_1.fsAsync.readFile(filePath, 'utf-8');
-            const tcs = new utils_1.TaskCompletionSource();
+            const fileMeta = yield utils_2.fsAsync.readFile(filePath, 'utf-8');
+            const tcs = new utils_2.TaskCompletionSource();
             const res = [];
             const mc = fileMeta.replace(/\n/g, ' ').replace(/>.+/, '').replace(/\(.+/, '').match(/import.+?from\s(["']).+?\1/g);
             if (mc && mc.length > 0) {

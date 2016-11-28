@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { flatten } from 'lodash';
+import { flatten } from '../libs/utils';
 
 import {
   IFileInfo,

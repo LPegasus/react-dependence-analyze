@@ -106,3 +106,35 @@ export function hasValidExtension(filename: string, validExts: string[] = []): s
     || validExts.length && exts.some(ext => ext === lastToken))
     ? `.${lastToken}` : null;
 }
+
+export function flatten<T>(array: Array<any> = [], preRes: T[] = []): T[] {
+  const res: T[] = [...preRes];
+  array.forEach(t => {
+    if (Object.prototype.toString.call(t) === '[object Array]') {
+      flatten<T>(t).forEach(d => res.push(d));
+    } else {
+      res.push(t);
+    }
+  });
+  return res;
+}
+
+/**
+ * @desc 去重
+ * @param {Array<T>} array
+ * @returns {Array<T>}
+ */
+export function uniq<T>(array: T[]): T[] {
+  const res: T[] = [];
+  let len: number = array.length;
+  while (len > 0) {
+    const v = array[--len];
+    const idx = array.indexOf(v);
+    if (idx >= 0 && idx < len) {
+      continue;
+    } else {
+      res.unshift(v);
+    }
+  }
+  return res;
+}

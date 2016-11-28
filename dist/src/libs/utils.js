@@ -90,4 +90,33 @@ function hasValidExtension(filename, validExts = []) {
         ? `.${lastToken}` : null;
 }
 exports.hasValidExtension = hasValidExtension;
+function flatten(array = [], preRes = []) {
+    const res = [...preRes];
+    array.forEach(t => {
+        if (Object.prototype.toString.call(t) === '[object Array]') {
+            flatten(t).forEach(d => res.push(d));
+        }
+        else {
+            res.push(t);
+        }
+    });
+    return res;
+}
+exports.flatten = flatten;
+function uniq(array) {
+    const res = [];
+    let len = array.length;
+    while (len > 0) {
+        const v = array[--len];
+        const idx = array.indexOf(v);
+        if (idx >= 0 && idx < len) {
+            continue;
+        }
+        else {
+            res.unshift(v);
+        }
+    }
+    return res;
+}
+exports.uniq = uniq;
 //# sourceMappingURL=utils.js.map
