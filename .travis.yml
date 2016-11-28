@@ -3,3 +3,12 @@ node_js:
   - "4"
   - "6"
   - "7"
+sudo: false
+script:
+  - npm test
+install:
+  - npm install
+  - npm install -g mocha
+branches:
+  only:
+    - master
