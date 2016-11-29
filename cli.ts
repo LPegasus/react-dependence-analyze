@@ -1,5 +1,5 @@
 import { FileUtils } from './src/file/FileUtils';
-import { IGetAllFilesOptions, IFileInfo } from './src/interface/IFile';
+import { IGetAllFilesOptions } from './src/interface/IFile';
 import * as path from 'path';
 import * as chalk from 'chalk';
 
@@ -11,6 +11,11 @@ const indexes = {
   whiteList: args.indexOf('-w') + 1,
   ignoreModule: args.indexOf('-i') + 1
 };
+
+let showFullPath: boolean = false;
+if (args.indexOf('-full') >= 0) {
+  showFullPath = true;
+}
 
 let target: string = '';
 let ti: number = args.indexOf('-t');
@@ -56,20 +61,9 @@ const fileUtil: FileUtils = new FileUtils(options);
 fileUtil.getAllFiles()
   .then(async () => {
     await fileUtil.analyzeDependence();
-    const res: Set<string> = getDependanceTrace(fileUtil.allFiles, target);
+    const res: Set<string> = FileUtils.getDependanceTrace(fileUtil.allFiles, target);
     console.log(chalk.blue('dependence trace:'));
     res.forEach(d => {
-      console.log(chalk.green(d));
+      console.log(chalk.green(!showFullPath ? path.relative(options.baseDir, d) : d));
     });
   }).catch(e => console.log(chalk.red(e)));
-
-function getDependanceTrace(allFiles: IFileInfo[], tar: IFileInfo | string = null, res?: Set<string>): Set<string> {
-  const result: Set<string> = new Set(res || []);
-  const tmp: string[] = allFiles.filter(d => d.dependenceList.some(f => f.equals(tar)))
-    .map(d => d.toString());
-  tmp.forEach(d => {
-    getDependanceTrace(allFiles, d, result).forEach(_d => result.add(_d));
-    result.add(d);
-  });
-  return result;
-}

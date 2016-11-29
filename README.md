@@ -1,5 +1,7 @@
 # react-dependence-analyze [![Build Status](https://travis-ci.org/LPegasus/react-dependence-analyze.svg?branch=master)](https://travis-ci.org/LPegasus/react-dependence-analyze) [![npm version](https://badge.fury.io/js/react-dependence-analyze.svg)](https://badge.fury.io/js/react-dependence-analyze)
 
+> 只支持 import 依赖的解析，赞不支持 require
+
 ## 使用说明
 
 ### FileUtils
@@ -54,7 +56,7 @@ fileUtil.getAllFiles()
 
 > For command line syntax:
 >
-> ​rda-cli 工程根目录 -t filename _依赖分析对象_  \[-e ext（逗号分隔）]  \[-b blackList（逗号分隔 RegExp 表达式）]  \[-w whiteList（逗号分隔 RegExp 表达式）]  \[-i ignoreModule（逗号分隔）]
+> ​rda-cli 工程根目录 -t filename _依赖分析对象_  \[-e ext（逗号分隔）]  \[-b blackList（逗号分隔 RegExp 表达式）]  \[-w whiteList（逗号分隔 RegExp 表达式）]  \[-i ignoreModule（逗号分隔）]  \[-full（显示为绝对路径）]
 
 ``` shell
 node_modules/.bin/rda-cli test/testData -t test/testData/components/MainMenu.jsx
@@ -62,3 +64,14 @@ node_modules/.bin/rda-cli test/testData -t test/testData/components/MainMenu.jsx
 // => .../react-dependence-analyze/test/testData/containers/Application.jsx
 ```
 
+
+## history log
+
+### 0.1.1 => 0.1.2
+
+* 支持 import 指定到文件夹、默认取文件夹下 index.js 或者 index.jsx 的这种情况
+* cli 默认输出相对路径，添加 cli 参数 -full，若设置 -full 则输出绝对路径
+
+### 0.1.0 => 0.1.1
+
+* 修剪 npm 包内容、依赖

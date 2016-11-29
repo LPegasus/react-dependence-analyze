@@ -76,6 +76,20 @@ class FileUtils {
                     })) {
                         return f;
                     }
+                    else if (exts.some(ext => {
+                        f.ext = ext;
+                        f.fileName = `${f.fileName}${path.sep}index${ext}`;
+                        if (this._cache_.get(f.toString())) {
+                            return true;
+                        }
+                        else {
+                            f.ext = _f.ext;
+                            f.fileName = _f.fileName;
+                            return false;
+                        }
+                    })) {
+                        return f;
+                    }
                     return null;
                 });
             }));
@@ -201,6 +215,16 @@ class FileUtils {
             tcs.setResult(res);
             return tcs.promise;
         });
+    }
+    static getDependanceTrace(allFiles, tar = null, res) {
+        const result = new Set(res || []);
+        const tmp = allFiles.filter(d => d.dependenceList.some(f => f.equals(tar)))
+            .map(d => d.toString());
+        tmp.forEach(d => {
+            FileUtils.getDependanceTrace(allFiles, d, result).forEach(_d => result.add(_d));
+            result.add(d);
+        });
+        return result;
     }
 }
 exports.FileUtils = FileUtils;

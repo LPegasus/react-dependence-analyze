@@ -16,6 +16,10 @@ const indexes = {
     whiteList: args.indexOf('-w') + 1,
     ignoreModule: args.indexOf('-i') + 1
 };
+let showFullPath = false;
+if (args.indexOf('-full') >= 0) {
+    showFullPath = true;
+}
 let target = '';
 let ti = args.indexOf('-t');
 if (ti >= 0) {
@@ -58,20 +62,10 @@ const fileUtil = new FileUtils_1.FileUtils(options);
 fileUtil.getAllFiles()
     .then(() => __awaiter(this, void 0, void 0, function* () {
     yield fileUtil.analyzeDependence();
-    const res = getDependanceTrace(fileUtil.allFiles, target);
+    const res = FileUtils_1.FileUtils.getDependanceTrace(fileUtil.allFiles, target);
     console.log(chalk.blue('dependence trace:'));
     res.forEach(d => {
-        console.log(chalk.green(d));
+        console.log(chalk.green(!showFullPath ? path.relative(options.baseDir, d) : d));
     });
 })).catch(e => console.log(chalk.red(e)));
-function getDependanceTrace(allFiles, tar = null, res) {
-    const result = new Set(res || []);
-    const tmp = allFiles.filter(d => d.dependenceList.some(f => f.equals(tar)))
-        .map(d => d.toString());
-    tmp.forEach(d => {
-        getDependanceTrace(allFiles, d, result).forEach(_d => result.add(_d));
-        result.add(d);
-    });
-    return result;
-}
 //# sourceMappingURL=cli.js.map

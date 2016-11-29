@@ -12,13 +12,16 @@ const FileUtils_1 = require('../dist/index.js').FileUtils;
 const path = require('path');
 const chalk = require('chalk');
 const args = process.argv.slice(2);
-
 const indexes = {
     ext: args.indexOf('-e') + 1,
     blackList: args.indexOf('-b') + 1,
     whiteList: args.indexOf('-w') + 1,
     ignoreModule: args.indexOf('-i') + 1
 };
+let showFullPath = false;
+if (args.indexOf('-full') >= 0) {
+    showFullPath = true;
+}
 let target = '';
 let ti = args.indexOf('-t');
 if (ti >= 0) {
@@ -64,7 +67,7 @@ fileUtil.getAllFiles()
     const res = getDependanceTrace(fileUtil.allFiles, target);
     console.log(chalk.blue('dependence trace:'));
     res.forEach(d => {
-        console.log(chalk.green(d));
+        console.log(chalk.green(!showFullPath ? path.relative(options.baseDir, d) : d));
     });
 })).catch(e => console.log(chalk.red(e)));
 function getDependanceTrace(allFiles, tar = null, res) {

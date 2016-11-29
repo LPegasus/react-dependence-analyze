@@ -32,7 +32,7 @@ const DEAULT_OPTIONS: IGetAllFilesOptions = {
 
 export class FileUtils {
   constructor(options?: IGetAllFilesOptions) {
-    const { ext = [] } = options;
+    const { ext = []} = options;
     if (ext.length) {
       options.ext = ext.map(d => /^\..+/i.test(d) ? d : `.${d}`);
     }
@@ -48,7 +48,7 @@ export class FileUtils {
   // 标记是否存在
   private _cache_: Map<string, boolean>;
 
-  get allFiles (): IFileInfo[] {
+  get allFiles(): IFileInfo[] {
     return this._allFiles;
   }
 
@@ -100,7 +100,19 @@ export class FileUtils {
             }
           })) {
             return f;
-          }
+          } else if (exts.some(ext => { // start: 0.1.2 +support import foldername
+            f.ext = ext;
+            f.fileName = `${f.fileName}${path.sep}index${ext}`;
+            if (this._cache_.get(f.toString())) {
+              return true;
+            } else {
+              f.ext = _f.ext;
+              f.fileName = _f.fileName;
+              return false;
+            }
+          })) {
+            return f;
+          } // end: 0.1.2
           return null;
         }
       );
@@ -271,7 +283,7 @@ export class FileUtils {
     const filePath = path.resolve(file.path, file.fileName);
     const fileMeta: string = await fsAsync.readFile(filePath, 'utf-8');
 
-    const tcs: TaskCompletionSource<IFileInfo[]> =  new TaskCompletionSource<IFileInfo[]>();
+    const tcs: TaskCompletionSource<IFileInfo[]> = new TaskCompletionSource<IFileInfo[]>();
     const res: IFileInfo[] = [];
     const mc = fileMeta.replace(/\n/g, ' ').replace(/>.+/, '').replace(/\(.+/, '').match(/import.+?from\s(["']).+?\1/g);
 
@@ -291,5 +303,16 @@ export class FileUtils {
     }
     tcs.setResult(res);
     return tcs.promise;
+  }
+
+  static getDependanceTrace(allFiles: IFileInfo[], tar: IFileInfo | string = null, res?: Set<string>): Set<string> {
+    const result: Set<string> = new Set(res || []);
+    const tmp: string[] = allFiles.filter(d => d.dependenceList.some(f => f.equals(tar)))
+      .map(d => d.toString());
+    tmp.forEach(d => {
+      FileUtils.getDependanceTrace(allFiles, d, result).forEach(_d => result.add(_d));
+      result.add(d);
+    });
+    return result;
   }
 }
