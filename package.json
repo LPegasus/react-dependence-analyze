@@ -22,14 +22,12 @@
     }
   ],
   "license": "ISC",
-  "dependencies": {
-    "typescript": "^2.0.3z"
-  },
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^3.1.2",
     "tslint": "^3.15.1",
-    "tslint-eslint-rules": "^2.1.0"
+    "tslint-eslint-rules": "^2.1.0",
+    "typescript": "^2.0.10"
   },
   "repository": {
     "type": "git",

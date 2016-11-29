@@ -1,4 +1,4 @@
-# react-dependence-analyze [![Build Status](https://travis-ci.org/LPegasus/react-dependence-analyze.svg?branch=master)](https://travis-ci.org/LPegasus/react-dependence-analyze)
+# react-dependence-analyze [![Build Status](https://travis-ci.org/LPegasus/react-dependence-analyze.svg?branch=master)](https://travis-ci.org/LPegasus/react-dependence-analyze) [![npm version](https://badge.fury.io/js/react-dependence-analyze.svg)](https://badge.fury.io/js/react-dependence-analyze)
 
 ## 使用说明
 
@@ -33,7 +33,7 @@
   * **equals(fileInfo: _string | FileInfo_): _boolean_** 比较是否相同（dependenceList 中的文件存放的并不是 FileInfo 的引用，而是重新生成的 FileInfo）
   * **toString(): _string_** 路径 + 文件名
 
-### example 1:
+### example 1
 
 ``` js
 var rcDepAnalyze = require('react-dependence-analyze');
@@ -50,11 +50,11 @@ fileUtil.getAllFiles()
   });
 ```
 
-### example 2:
+### example 2
 
 > For command line syntax:
 >
-> ​	rda-cli 工程根目录 -t filename _依赖分析对象_  \[-e ext（逗号分隔）]  \[-b blackList（逗号分隔 RegExp 表达式）]  \[-w whiteList（逗号分隔 RegExp 表达式）]  \[-i ignoreModule（逗号分隔）]
+> ​rda-cli 工程根目录 -t filename _依赖分析对象_  \[-e ext（逗号分隔）]  \[-b blackList（逗号分隔 RegExp 表达式）]  \[-w whiteList（逗号分隔 RegExp 表达式）]  \[-i ignoreModule（逗号分隔）]
 
 ``` shell
 node_modules/.bin/rda-cli test/testData -t test/testData/components/MainMenu.jsx
