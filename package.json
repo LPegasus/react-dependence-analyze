@@ -1,6 +1,6 @@
 {
   "name": "react-dependence-analyze",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "reactjs project tool",
   "main": "dist/index.js",
   "scripts": {
@@ -37,5 +37,9 @@
   },
   "bin": {
     "rda-cli": "./bin/rda-cli"
-  }
+  },
+  "engines": {
+    "node": ">= 6.*"
+  },
+  "os": ["!win32"]
 }
