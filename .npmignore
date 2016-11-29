@@ -1,0 +1,8 @@
+._*
+.DS_Store
+.git
+.hg
+npm-debug.log
+.vscode/**/*
+src/**/*
+test/**/*
