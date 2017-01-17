@@ -30,7 +30,7 @@
     "cli.ts"
   ],
   "files": [
-    "src/index.ts",
+    "index.ts",
     "typings/index.d.ts"
   ],
   "exclude": [

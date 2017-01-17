@@ -1,15 +1,15 @@
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const path = require('path');
-const utils_1 = require('../libs/utils');
-const FileInfo_1 = require('./FileInfo');
-const utils_2 = require('../libs/utils');
+const path = require("path");
+const utils_1 = require("../libs/utils");
+const FileInfo_1 = require("./FileInfo");
+const utils_2 = require("../libs/utils");
 const DEPENDENCE_IGNORE_LIST = [
     'react', 'react-dom', 'moment', 'antd', 'react-router', 'lodash', 'classnames', 'babel-polyfill'
 ];
@@ -20,6 +20,7 @@ const DEAULT_OPTIONS = {
     whiteList: [],
     ignoreModule: DEPENDENCE_IGNORE_LIST
 };
+exports.allResult = new Set([]);
 class FileUtils {
     constructor(options) {
         const { ext = [] } = options;
@@ -225,6 +226,22 @@ class FileUtils {
             result.add(d);
         });
         return result;
+    }
+    static getDependanceRecursive(allFiles, tar = null, res) {
+        const tmp = allFiles.filter(d => d.dependenceList.some(f => f.equals(tar)))
+            .map(d => d.toString());
+        if (tmp.length) {
+            tmp.forEach(d => {
+                const result = Array.from(res || []);
+                result.push(d);
+                FileUtils.getDependanceRecursive(allFiles, d, result);
+            });
+        }
+        else {
+            const result = Array.from(res || []);
+            exports.allResult.add(result);
+        }
+        return tmp;
     }
 }
 exports.FileUtils = FileUtils;

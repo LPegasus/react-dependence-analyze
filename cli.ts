@@ -1,4 +1,5 @@
-import { FileUtils } from './src/file/FileUtils';
+import { FileUtils, allResult } from './src/file/FileUtils';
+//import { FileUtils } from './src/file/FileUtils';
 import { IGetAllFilesOptions } from './src/interface/IFile';
 import * as path from 'path';
 import * as chalk from 'chalk';
@@ -37,7 +38,8 @@ Object.keys(indexes).forEach(i => {
       case 'ext':
         options.ext = args[indexes.ext].split(/,(\s+)?/).filter(d => !!d);
         break;
-      case 'blackList', 'whiteList':
+      case 'blackList':
+      case 'whiteList':
         try {
           options[field] = args[indexes[field]].match(/\/.+?\/(\w+)?/g).map(d => {
             const mc = d.match(/\/(.+?)\/(\w+)?/i);
@@ -58,12 +60,30 @@ Object.keys(indexes).forEach(i => {
 
 const fileUtil: FileUtils = new FileUtils(options);
 
-fileUtil.getAllFiles()
+// fileUtil.getAllFiles()
+//   .then(async () => {
+//     await fileUtil.analyzeDependence();
+//     const res: Set<string> = FileUtils.getDependanceTrace(fileUtil.allFiles, target);
+//     console.log(chalk.blue('dependence trace:'));
+//     res.forEach(d => {
+//       console.log(chalk.green(!showFullPath ? path.relative(options.baseDir, d) : d));
+//     });
+//   }).catch(e => console.log(chalk.red(e)));
+
+
+
+  fileUtil.getAllFiles()
   .then(async () => {
     await fileUtil.analyzeDependence();
-    const res: Set<string> = FileUtils.getDependanceTrace(fileUtil.allFiles, target);
+    FileUtils.getDependanceRecursive(fileUtil.allFiles, target);
+    // const res: Set<Set> = allResult;
     console.log(chalk.blue('dependence trace:'));
-    res.forEach(d => {
-      console.log(chalk.green(!showFullPath ? path.relative(options.baseDir, d) : d));
+    allResult.forEach(d => {
+      let line = '';
+      d.forEach( i => {
+        const thePath = !showFullPath ? path.relative(options.baseDir, i) : i;
+        line += `-> ${thePath} `;
+      });
+    console.log(chalk.green(line));
     });
   }).catch(e => console.log(chalk.red(e)));
