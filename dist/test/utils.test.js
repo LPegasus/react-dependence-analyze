@@ -1,14 +1,14 @@
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const utils_1 = require('../src/libs/utils');
-const chai_1 = require('chai');
-const path = require('path');
+const utils_1 = require("../src/libs/utils");
+const chai_1 = require("chai");
+const path = require("path");
 describe('utils.test', () => {
     it(' - forEachAsync', () => {
         const tcs = new utils_1.TaskCompletionSource();

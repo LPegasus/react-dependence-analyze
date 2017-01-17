@@ -1,14 +1,14 @@
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const FileUtils_1 = require('./src/file/FileUtils');
-const path = require('path');
-const chalk = require('chalk');
+const FileUtils_1 = require("./src/file/FileUtils");
+const path = require("path");
+const chalk = require("chalk");
 const args = process.argv.slice(2);
 const indexes = {
     ext: args.indexOf('-e') + 1,
@@ -39,7 +39,8 @@ Object.keys(indexes).forEach(i => {
             case 'ext':
                 options.ext = args[indexes.ext].split(/,(\s+)?/).filter(d => !!d);
                 break;
-            case 'blackList', 'whiteList':
+            case 'blackList':
+            case 'whiteList':
                 try {
                     options[field] = args[indexes[field]].match(/\/.+?\/(\w+)?/g).map(d => {
                         const mc = d.match(/\/(.+?)\/(\w+)?/i);
@@ -62,10 +63,15 @@ const fileUtil = new FileUtils_1.FileUtils(options);
 fileUtil.getAllFiles()
     .then(() => __awaiter(this, void 0, void 0, function* () {
     yield fileUtil.analyzeDependence();
-    const res = FileUtils_1.FileUtils.getDependanceTrace(fileUtil.allFiles, target);
+    FileUtils_1.FileUtils.getDependanceRecursive(fileUtil.allFiles, target);
     console.log(chalk.blue('dependence trace:'));
-    res.forEach(d => {
-        console.log(chalk.green(!showFullPath ? path.relative(options.baseDir, d) : d));
+    FileUtils_1.allResult.forEach(d => {
+        let line = '';
+        d.forEach(i => {
+            const thePath = !showFullPath ? path.relative(options.baseDir, i) : i;
+            line += `-> ${thePath} `;
+        });
+        console.log(chalk.green(line));
     });
 })).catch(e => console.log(chalk.red(e)));
 //# sourceMappingURL=cli.js.map

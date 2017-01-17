@@ -30,6 +30,9 @@ const DEAULT_OPTIONS: IGetAllFilesOptions = {
   ignoreModule: DEPENDENCE_IGNORE_LIST
 };
 
+export const allResult = new Set<Array<any>>([]);
+// const allResult = new Set<Array<any>>([]);
+
 export class FileUtils {
   constructor(options?: IGetAllFilesOptions) {
     const { ext = []} = options;
@@ -314,5 +317,27 @@ export class FileUtils {
       result.add(d);
     });
     return result;
+  }
+
+  static getDependanceRecursive(allFiles: IFileInfo[], tar: IFileInfo | string = null, res?: Array<string>): Array<string> {
+    // console.log('target', tar);
+    const tmp: string[] = allFiles.filter(d => d.dependenceList.some(f => f.equals(tar)))
+      .map(d => d.toString());
+    // console.log('tmp', tmp);
+    if (tmp.length) {
+      tmp.forEach(d => {
+        const result: Array<string> = Array.from(res || []);
+        result.push(d);
+        // console.log('addResult', result);
+        FileUtils.getDependanceRecursive(allFiles, d, result);
+
+      });
+    } else {
+      const result: Array<string> = Array.from(res || []);
+      // console.log('allResult', allResult);
+      allResult.add(result);
+    }
+
+    return tmp;
   }
 }
