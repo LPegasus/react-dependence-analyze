@@ -1,6 +1,6 @@
 # react-dependence-analyze [![Build Status](https://travis-ci.org/LPegasus/react-dependence-analyze.svg?branch=master)](https://travis-ci.org/LPegasus/react-dependence-analyze) [![npm version](https://badge.fury.io/js/react-dependence-analyze.svg)](https://badge.fury.io/js/react-dependence-analyze)
 
-> 只支持 import 依赖的解析，赞不支持 require
+> 只支持 import 依赖的解析，暂不支持 require
 
 ## 使用说明
 
